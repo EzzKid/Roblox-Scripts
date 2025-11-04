@@ -1,174 +1,29 @@
-local player = game.Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
+task.wait(3) -- small delay to ensure character loads
 
--- Remove old GUI if it exists
-local existing = playerGui:FindFirstChild("TeleportGUI")
-if existing then
-    existing:Destroy()
-end
-
--- Create main GUI components
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "TeleportGUI"
-screenGui.Parent = playerGui
-
-local mainFrame = Instance.new("Frame")
-mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 200, 0, 300)
-mainFrame.Position = UDim2.new(0.5, -100, 0.5, -150)
-mainFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-mainFrame.BorderSizePixel = 0
-mainFrame.Parent = screenGui
-
--- Title Bar (using "TELEPORT MENU" only)
-local title = Instance.new("TextLabel")
-title.Name = "TitleBar"
-title.Size = UDim2.new(1, 0, 0, 35)
-title.Position = UDim2.new(0, 0, 0, 0)
-title.Text = "TELEPORT MENU"  -- Only this title
-title.Font = Enum.Font.GothamBold
-title.TextSize = 18
-title.TextColor3 = Color3.fromRGB(255, 255, 255)
-title.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-title.BorderSizePixel = 0
-title.Parent = mainFrame
-
--- Close button
-local closeButton = Instance.new("TextButton")
-closeButton.Name = "CloseButton"
-closeButton.Size = UDim2.new(0, 30, 0, 30)
-closeButton.Position = UDim2.new(1, -30, 0, 0)
-closeButton.Text = "X"
-closeButton.Font = Enum.Font.GothamBold
-closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-closeButton.BorderSizePixel = 0
-closeButton.Parent = mainFrame
-
-closeButton.MouseButton1Click:Connect(function()
-    screenGui:Destroy()
-end)
-
--- Scroll Frame for teleport buttons
-local teleportList = Instance.new("ScrollingFrame")
-teleportList.Name = "TeleportList"
-teleportList.Size = UDim2.new(1, -10, 1, -40)
-teleportList.Position = UDim2.new(0, 5, 0, 35)
-teleportList.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-teleportList.BorderSizePixel = 0
-teleportList.ScrollBarThickness = 6
-teleportList.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 100)
-teleportList.CanvasSize = UDim2.new(0, 0, 0, 0)
-teleportList.AutomaticCanvasSize = Enum.AutomaticSize.Y
-teleportList.Parent = mainFrame
-
-local uiListLayout = Instance.new("UIListLayout")
-uiListLayout.Padding = UDim.new(0, 5)
-uiListLayout.Parent = teleportList
-
--- Teleport points (only simple locations)
-local teleportPoints = {
-    ArtifactC = Vector3.new(-753, 123, -3174),
-    ArtifactA = Vector3.new(-1350, -458, -1577),
-    ArtifactB = Vector3.new(1404, -252, -1855),
-    Drone = Vector3.new(-102, 235, -2791),
-    Claymore = Vector3.new(-162, -4, -2497),
-    Claymore2 = Vector3.new(-1511, 45, -2562),
-    Shipwreck = Vector3.new(-344, 11, 893),
-	ArtifactD = Vector3.new(-1773, -199, -1308),
-	Watchtower = Vector3.new(-669, 138, -296),
-	ShipwreckBackPart = Vector3.new(-367, 9, 933),
-	Warehouse = Vector3.new(-858, 61, -565),
-	Generators = Vector3.new(502, -7, -499)
+local teleport_table = {
+	location1 = Vector3.new(-4000, -262, -540)
 }
 
--- Helper: Get character
-local function getCharacter()
-    return player.Character or player.CharacterAdded:Wait()
+-- Services
+local tween_s = game:GetService("TweenService")
+local tweeninfo = TweenInfo.new(4.5, Enum.EasingStyle.Circular)
+local lp = game.Players.LocalPlayer
+
+-- Teleport function with tween animation
+function bypass_teleport(v)
+	if lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
+		local hrp = lp.Character.HumanoidRootPart
+		local goal = {CFrame = CFrame.new(v)}
+
+		-- Create the tween correctly
+		local tween = tween_s:Create(hrp, tweeninfo, goal)
+
+		print("Tweening to location:", v)
+		tween:Play()
+		tween.Completed:Wait() -- Wait until tween finishes
+		print("Teleport complete!")
+	end
 end
 
--- Teleport function
-local function stealthTeleport(destination)
-    local character = getCharacter()
-    local humanoid = character:FindFirstChildOfClass("Humanoid")
-    local rootPart = character:FindFirstChild("HumanoidRootPart")
-
-    if humanoid and rootPart then
-        humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-        task.wait(0.15)
-        rootPart.CFrame = CFrame.new(destination + Vector3.new(0, 3, 0))
-    end
-end
-
--- Button creation (simple names only)
-local function createButton(name)
-    local button = Instance.new("TextButton")
-    button.Name = name
-    button.Size = UDim2.new(1, -10, 0, 35)
-    button.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    button.Font = Enum.Font.Gotham
-    button.TextSize = 14
-    button.Text = name  -- Just the location name
-    button.BorderSizePixel = 0
-    button.AutoButtonColor = true
-    
-    -- Button hover effects
-    button.MouseEnter:Connect(function()
-        button.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-    end)
-    
-    button.MouseLeave:Connect(function()
-        button.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    end)
-    
-    return button
-end
-
--- Generate teleport buttons in correct order
-local buttonOrder = {"ArtifactC", "ArtifactA", "ArtifactB", "Drone", "Claymore", "Claymore2", "Shipwreck", "ArtifactD", "Watchtower", "ShipwreckBackPart", "Warehouse", "Generators"}
-for _, name in ipairs(buttonOrder) do
-    local button = createButton(name)
-    button.Parent = teleportList
-    
-    button.MouseButton1Click:Connect(function()
-        stealthTeleport(teleportPoints[name])
-    end)
-end
-
--- Make the GUI draggable
-local dragging
-local dragInput
-local dragStart
-local startPos
-
-local function update(input)
-    local delta = input.Position - dragStart
-    mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-end
-
-title.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        startPos = mainFrame.Position
-        
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
-    end
-end)
-
-title.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement then
-        dragInput = input
-    end
-end)
-
-game:GetService("UserInputService").InputChanged:Connect(function(input)
-    if input == dragInput and dragging then
-        update(input)
-    end
-end)
+print("Teleport to location1 successful")
+bypass_teleport(teleport_table.location1)
