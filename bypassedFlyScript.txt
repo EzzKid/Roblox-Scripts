@@ -1,184 +1,43 @@
-local Players = game:GetService("Players")
-local UIS = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
+task.wait(2)
+local Workspace = game:GetService("Workspace")
 
-local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
-local rootPart = character:WaitForChild("HumanoidRootPart")
+local part = Instance.new("Part")
+part.Name = "Part"
+part.Size = Vector3.new(50, 1, 50)
+part.Anchored = true
+part.Position = Vector3.new(-2700, -257, 320)
+part.Parent = Workspace
 
-local flying = false
-local normalSpeed = 8-- Lower for realism
-local boostSpeed = 13
-local speed = normalSpeed
-local alignPosition
-local alignOrientation
+task.wait(2)
 
--- Stealth Movement Attachments
-local function attachStealthFly()
-	local att0 = Instance.new("Attachment", rootPart)
-	local att1 = Instance.new("Attachment", workspace.Terrain)
+-- Teleport destinations
+local teleport_table = {
+	location1 = Vector3.new(-2700, -254, 320)
+}
 
-	alignPosition = Instance.new("AlignPosition")
-	alignPosition.Attachment0 = att0
-	alignPosition.Attachment1 = att1
-	alignPosition.RigidityEnabled = false
-	alignPosition.MaxForce = 25000
-	alignPosition.Responsiveness = 35
-	alignPosition.Parent = rootPart
+-- Services
+local TweenService = game:GetService("TweenService")
+local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear)
+local lp = game.Players.LocalPlayer
 
-	alignOrientation = Instance.new("AlignOrientation")
-	alignOrientation.Attachment0 = att0
-	alignOrientation.Attachment1 = att1
-	alignOrientation.MaxTorque = 25000
-	alignOrientation.Responsiveness = 30
-	alignOrientation.RigidityEnabled = false
-	alignOrientation.Parent = rootPart
+-- Teleport function with tween animation
+local function bypass_teleport(v)
+	if lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
+		local hrp = lp.Character.HumanoidRootPart
+		local goal = {CFrame = CFrame.new(v)}
 
-	return att0, att1
-end
+		-- Create the tween
+		local tween = TweenService:Create(hrp, tweenInfo, goal)
 
--- Toggle fly mode
-local att0, att1
-local function toggleFly()
-	flying = not flying
-	if flying then
-		att0, att1 = attachStealthFly()
-	else
-		if alignPosition then alignPosition:Destroy() end
-		if alignOrientation then alignOrientation:Destroy() end
-		if att0 then att0:Destroy() end
-		if att1 then att1:Destroy() end
+		tween:Play()
+		tween.Completed:Wait() -- Wait until tween finishes
 	end
 end
 
--- Input Handling
-UIS.InputBegan:Connect(function(input, gameProcessed)
-	if not gameProcessed and input.KeyCode == Enum.KeyCode.F then
-		toggleFly()
-	elseif flying and input.KeyCode == Enum.KeyCode.LeftShift then
-		speed = boostSpeed
-	end
-end)
 
-UIS.InputEnded:Connect(function(input, gameProcessed)
-	if flying and input.KeyCode == Enum.KeyCode.LeftShift then
-		speed = normalSpeed
-	end
-end)
-
--- Stealth Movement Loop
-RunService.RenderStepped:Connect(function(dt)
-	if flying and alignPosition and alignOrientation and att1 then
-		local camCF = workspace.CurrentCamera.CFrame
-		local direction = Vector3.zero
-
-		if UIS:IsKeyDown(Enum.KeyCode.W) then direction += camCF.LookVector end
-		if UIS:IsKeyDown(Enum.KeyCode.S) then direction -= camCF.LookVector end
-		if UIS:IsKeyDown(Enum.KeyCode.A) then direction -= camCF.RightVector end
-		if UIS:IsKeyDown(Enum.KeyCode.D) then direction += camCF.RightVector end
-		if UIS:IsKeyDown(Enum.KeyCode.Space) then direction += Vector3.new(0,1,0) end
-		if UIS:IsKeyDown(Enum.KeyCode.LeftControl) then direction -= Vector3.new(0,1,0) end
-
-		if direction.Magnitude > 0 then
-			direction = direction.Unit * speed
-			att1.Position = rootPart.Position + direction
-			att1.Orientation = camCF.Rotation:ToEulerAnglesXYZ()
-		else
-			att1.Position = rootPart.Position
-		end
-	end
-end)
--- Press "F" to toggle fly mode (Stealth Version for Criminality R6)
-
-local Players = game:GetService("Players")
-local UIS = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
-
-local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
-local rootPart = character:WaitForChild("HumanoidRootPart")
-
-local flying = false
-local normalSpeed = 20 -- Lower for realism
-local boostSpeed = 30
-local speed = normalSpeed
-local alignPosition
-local alignOrientation
-
--- Stealth Movement Attachments
-local function attachStealthFly()
-	local att0 = Instance.new("Attachment", rootPart)
-	local att1 = Instance.new("Attachment", workspace.Terrain)
-
-	alignPosition = Instance.new("AlignPosition")
-	alignPosition.Attachment0 = att0
-	alignPosition.Attachment1 = att1
-	alignPosition.RigidityEnabled = false
-	alignPosition.MaxForce = 25000
-	alignPosition.Responsiveness = 35
-	alignPosition.Parent = rootPart
-
-	alignOrientation = Instance.new("AlignOrientation")
-	alignOrientation.Attachment0 = att0
-	alignOrientation.Attachment1 = att1
-	alignOrientation.MaxTorque = 25000
-	alignOrientation.Responsiveness = 30
-	alignOrientation.RigidityEnabled = false
-	alignOrientation.Parent = rootPart
-
-	return att0, att1
+while true do
+	print("Teleporting to location1...")
+	bypass_teleport(teleport_table.location1)
+	print("Waiting 15 seconds before next teleport...")
+	task.wait(25)
 end
-
--- Toggle fly mode
-local att0, att1
-local function toggleFly()
-	flying = not flying
-	if flying then
-		att0, att1 = attachStealthFly()
-	else
-		if alignPosition then alignPosition:Destroy() end
-		if alignOrientation then alignOrientation:Destroy() end
-		if att0 then att0:Destroy() end
-		if att1 then att1:Destroy() end
-	end
-end
-
--- Input Handling
-UIS.InputBegan:Connect(function(input, gameProcessed)
-	if not gameProcessed and input.KeyCode == Enum.KeyCode.F then
-		toggleFly()
-	elseif flying and input.KeyCode == Enum.KeyCode.LeftShift then
-		speed = boostSpeed
-	end
-end)
-
-UIS.InputEnded:Connect(function(input, gameProcessed)
-	if flying and input.KeyCode == Enum.KeyCode.LeftShift then
-		speed = normalSpeed
-	end
-end)
-
--- Stealth Movement Loop
-RunService.RenderStepped:Connect(function(dt)
-	if flying and alignPosition and alignOrientation and att1 then
-		local camCF = workspace.CurrentCamera.CFrame
-		local direction = Vector3.zero
-
-		if UIS:IsKeyDown(Enum.KeyCode.W) then direction += camCF.LookVector end
-		if UIS:IsKeyDown(Enum.KeyCode.S) then direction -= camCF.LookVector end
-		if UIS:IsKeyDown(Enum.KeyCode.A) then direction -= camCF.RightVector end
-		if UIS:IsKeyDown(Enum.KeyCode.D) then direction += camCF.RightVector end
-		if UIS:IsKeyDown(Enum.KeyCode.Space) then direction += Vector3.new(0,1,0) end
-		if UIS:IsKeyDown(Enum.KeyCode.LeftControl) then direction -= Vector3.new(0,1,0) end
-
-		if direction.Magnitude > 0 then
-			direction = direction.Unit * speed
-			att1.Position = rootPart.Position + direction
-			att1.Orientation = camCF.Rotation:ToEulerAnglesXYZ()
-		else
-			att1.Position = rootPart.Position
-		end
-	end
-end)
