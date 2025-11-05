@@ -39,5 +39,5 @@ while true do
 	print("Teleporting to location1...")
 	bypass_teleport(teleport_table.location1)
 	print("Waiting 15 seconds before next teleport...")
-	task.wait(25)
+	task.wait(17)
 end
