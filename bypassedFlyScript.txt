@@ -8,11 +8,11 @@ part.Anchored = true
 part.Position = Vector3.new(-2700, -257, 320)
 part.Parent = Workspace
 
-task.wait(2)
+task.wait(2)  
 
 -- Teleport destinations
 local teleport_table = {
-	location1 = Vector3.new(-2700, -254, 320)
+	location1 = Vector3.new(-2700, -253, 320)
 }
 
 -- Services
