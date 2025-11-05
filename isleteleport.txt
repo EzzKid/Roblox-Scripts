@@ -6,7 +6,7 @@ local teleport_table = {
 
 -- Services
 local tween_s = game:GetService("TweenService")
-local tweeninfo = TweenInfo.new(4.5, Enum.EasingStyle.Circular)
+local tweeninfo = TweenInfo.new(2, Enum.EasingStyle.Linear)
 local lp = game.Players.LocalPlayer
 
 -- Teleport function with tween animation
