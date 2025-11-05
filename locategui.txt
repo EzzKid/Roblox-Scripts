@@ -1,9 +1,8 @@
 local Workspace = game:GetService("Workspace")
 
 local part = Instance.new("Part")
-part.Name = "Part2"
-part.Size = Vector3.new(50, 1.5, 50)
+part.Name = "Part"
+part.Size = Vector3.new(50, 1, 50)
 part.Anchored = true
 part.Position = Vector3.new(-2700, -257, 320)
 part.Parent = Workspace
-
