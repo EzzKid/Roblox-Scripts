@@ -1,7 +1,7 @@
-task.wait(3) -- small delay to ensure character loads
+task.wait(2) -- small delay to ensure character loads
 
 local teleport_table = {
-	location1 = Vector3.new(-2700, -257, 320)
+	location1 = Vector3.new(-2700, -253, 322)
 }
 
 -- Services
