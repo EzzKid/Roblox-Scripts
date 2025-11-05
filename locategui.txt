@@ -1,52 +1,8 @@
-local player = game.Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
+local Workspace = game:GetService("Workspace")
 
--- Create the UI
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "PositionLoggerGui"
-screenGui.ResetOnSpawn = false
-screenGui.Parent = playerGui
-
--- Create the draggable frame
-local frame = Instance.new("Frame")
-frame.Name = "DraggableFrame"
-frame.Size = UDim2.new(0, 200, 0, 100)
-frame.Position = UDim2.new(0.5, -100, 0.5, -50)
-frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-frame.BorderSizePixel = 0
-frame.Active = true
-frame.Draggable = true
-frame.Parent = screenGui
-
--- Create title bar
-local titleBar = Instance.new("TextLabel")
-titleBar.Size = UDim2.new(1, 0, 0, 25)
-titleBar.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-titleBar.Text = "Position Logger"
-titleBar.TextColor3 = Color3.new(1, 1, 1)
-titleBar.Font = Enum.Font.SourceSansBold
-titleBar.TextSize = 16
-titleBar.Parent = frame
-
--- Create button
-local button = Instance.new("TextButton")
-button.Size = UDim2.new(0.8, 0, 0, 40)
-button.Position = UDim2.new(0.1, 0, 0.5, 0)
-button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-button.Text = "Log Position"
-button.TextColor3 = Color3.new(1, 1, 1)
-button.Font = Enum.Font.SourceSans
-button.TextSize = 16
-button.Parent = frame
-
--- Function to log position
-local function logPosition()
-	local character = player.Character or player.CharacterAdded:Wait()
-	local hrp = character:WaitForChild("HumanoidRootPart")
-	local pos = hrp.Position
-	print("Your current position:")
-	print("Vector3.new(" .. math.floor(pos.X) .. ", " .. math.floor(pos.Y) .. ", " .. math.floor(pos.Z) .. ")")
-end
-
--- Connect button
-button.MouseButton1Click:Connect(logPosition)
+local part = Instance.new("Part")
+part.Name = "Part"
+part.Size = Vector3.new(50, 1, 50)
+part.Anchored = true
+part.Position = Vector3.new(-2700, -257, 320)
+part.Parent = Workspace
