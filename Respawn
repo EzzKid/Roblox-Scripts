@@ -1,1 +1,25 @@
+local player = game.Players.LocalPlayer
 
+local function setupCharacter(character)
+    local humanoid = character:WaitForChild("Humanoid")
+
+    local diedOnce = false  -- debounce
+
+    humanoid.Died:Connect(function()
+        if diedOnce then return end
+        diedOnce = true
+		task.wait(4)
+		local args = {
+	"KMG4R904"
+}
+game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("DeathRespawn"):InvokeServer(unpack(args))
+    end)
+end
+
+-- Run for current character
+if player.Character then
+    setupCharacter(player.Character)
+end
+
+-- Run again each respawn
+player.CharacterAdded:Connect(setupCharacter)
