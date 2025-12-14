@@ -1,0 +1,112 @@
+-- SERVICES
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local Camera = Workspace.CurrentCamera
+
+-- PLAYER
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+-- FOLLOW STATE
+local following = false
+local followTarget = nil
+local followConnection = nil
+
+-- FOLLOW FUNCTION
+local function startFollowing(targetPlayer)
+	following = true
+	followTarget = targetPlayer
+
+	if followConnection then
+		followConnection:Disconnect()
+	end
+
+	followConnection = RunService.Heartbeat:Connect(function()
+		if not following then return end
+		if not followTarget.Character then return end
+
+		local hrp = followTarget.Character:FindFirstChild("HumanoidRootPart")
+		local myHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+
+		if hrp and myHRP then
+			local tween = TweenService:Create(
+				myHRP,
+				TweenInfo.new(1, Enum.EasingStyle.Linear),
+				{CFrame = hrp.CFrame * CFrame.new(0, 0, -3)}
+			)
+			tween:Play()
+		end
+	end)
+end
+
+local function stopFollowing()
+	following = false
+	followTarget = nil
+
+	if followConnection then
+		followConnection:Disconnect()
+		followConnection = nil
+	end
+end
+
+-- GET PLAYER FROM CHARACTER
+local function getPlayerFromCharacter(character)
+	for _, player in Players:GetPlayers() do
+		if player.Character == character then
+			return player
+		end
+	end
+	return nil
+end
+
+-- MOUSE CLICK HANDLER
+local function onMouseClick(input, gameProcessed)
+	if gameProcessed then return end
+	if input.UserInputType ~= Enum.UserInputType.MouseButton1 then return end
+
+	-- Cast a ray from the camera to the mouse position
+	local mousePosition = UserInputService:GetMouseLocation()
+	local ray = Camera:ViewportPointToRay(mousePosition.X, mousePosition.Y)
+	local raycastResult = Workspace:Raycast(ray.Origin, ray.Direction * 1000)
+
+	if raycastResult then
+		local hitPart = raycastResult.Instance
+		local character = hitPart.Parent
+
+		-- Check if we hit a player character
+		local targetPlayer = getPlayerFromCharacter(character)
+		if targetPlayer and targetPlayer ~= player then
+			-- Start following the clicked player
+			startFollowing(targetPlayer)
+		end
+	end
+end
+
+local function TweenFasterToPlayerWhen10StudsClose
+	if TargetedPlayer.Position = 10
+	then TweenInfo = 0.3.TweenInfo.EasingStyle.Linear
+		
+		
+		
+	end
+
+local function KeepTweenedToPlayerEvenIfTheyReset
+	local player = Players.LocalPlayer
+	end
+	-- KEYBOARD INPUT HANDLER
+	local function onInputBegan(input, gameProcessed)
+		if gameProcessed then return end
+
+		-- Press V to stop following
+		if input.KeyCode == Enum.KeyCode.V then
+			stopFollowing()
+		end
+	end
+
+	-- CONNECT INPUT EVENTS
+	UserInputService.InputBegan:Connect(onInputBegan)
+UserInputService.InputBegan:Connect(onMouseClick)
+
