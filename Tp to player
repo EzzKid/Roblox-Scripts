@@ -1,0 +1,160 @@
+-- SERVICES
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+-- LOCAL PLAYER
+local lp = Players.LocalPlayer
+local playerGui = lp:WaitForChild("PlayerGui")
+
+----------------------------------------------------------------
+-- GUI SETUP
+----------------------------------------------------------------
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "Menu"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(0, 250, 0, 30)
+title.Position = UDim2.new(0, 20, 0, 20)
+title.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+title.TextColor3 = Color3.new(1, 1, 1)
+title.Text = "LARP Teleport Menu"
+title.Active = true
+title.Draggable = true
+title.Parent = screenGui
+
+local frame = Instance.new("ScrollingFrame")
+frame.Size = UDim2.new(0, 250, 0, 300)
+frame.Position = UDim2.new(0, 0, 0, 30)
+frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+frame.CanvasSize = UDim2.new(0, 0, 0, 0)
+frame.ScrollBarImageTransparency = 0
+frame.ScrollBarThickness = 6
+frame.AutomaticCanvasSize = Enum.AutomaticSize.None
+frame.Parent = title
+
+
+local uiList = Instance.new("UIListLayout")
+uiList.Padding = UDim.new(0, 5)
+uiList.Parent = frame
+
+uiList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+	frame.CanvasSize = UDim2.new(0, 0, 0, uiList.AbsoluteContentSize.Y + 10)
+end)
+
+
+----------------------------------------------------------------
+-- LARP TELEPORT SYSTEM
+----------------------------------------------------------------
+local easing = {}
+
+easing.quadInOut = function(t)
+	return t < 0.5 and 2*t*t or -1 + (4 - 2*t)*t
+end
+
+local teleportConnection = nil
+local selectedPlayer = nil
+
+local function pivot_teleport(targetPos, duration)
+	local char = lp.Character
+	if not char or not char.PrimaryPart then return end
+
+	local start = char:GetPivot()
+	local goal = CFrame.new(targetPos)
+	local startTime = tick()
+
+	local conn
+	conn = RunService.Heartbeat:Connect(function()
+		local t = (tick() - startTime) / duration
+		if t >= 1 then t = 1 end
+
+		local a = easing.quadInOut(t)
+		char:PivotTo(start:Lerp(goal, a))
+
+		if t == 1 then
+			conn:Disconnect()
+		end
+	end)
+end
+
+local function startFollow(player)
+	if teleportConnection then
+		teleportConnection:Disconnect()
+	end
+
+	teleportConnection = RunService.Heartbeat:Connect(function()
+		if not player.Character or not player.Character.PrimaryPart then return end
+		pivot_teleport(player.Character.PrimaryPart.Position, 0.25)
+	end)
+end
+
+local function stopFollow()
+	if teleportConnection then
+		teleportConnection:Disconnect()
+		teleportConnection = nil
+	end
+	selectedPlayer = nil
+end
+
+----------------------------------------------------------------
+-- PLAYER LIST
+----------------------------------------------------------------
+local buttons = {}
+
+local function createPlayerButton(player)
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(1, -10, 0, 30)
+	btn.Text = player.Name
+	btn.TextColor3 = Color3.new(1,1,1)
+	btn.BackgroundColor3 = Color3.fromRGB(200, 0, 0) -- RED default
+	btn.Parent = frame
+
+	btn.MouseButton1Click:Connect(function()
+		-- Deselect current
+		if selectedPlayer == player then
+			btn.BackgroundColor3 = Color3.fromRGB(200, 0, 0) -- RED
+			stopFollow()
+			return
+		end
+
+		-- Reset all buttons
+		for _, b in pairs(buttons) do
+			b.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+		end
+
+		-- Select new
+		selectedPlayer = player
+		btn.BackgroundColor3 = Color3.fromRGB(0, 200, 0) -- GREEN
+		startFollow(player)
+	end)
+
+	buttons[player] = btn
+end
+
+local function refreshPlayers()
+	-- Clear old buttons
+	for _, btn in pairs(buttons) do
+		btn:Destroy()
+	end
+	buttons = {}
+
+	for _, player in pairs(Players:GetPlayers()) do
+		if player ~= lp then
+			createPlayerButton(player)
+		end
+	end
+end
+
+----------------------------------------------------------------
+-- EVENTS
+----------------------------------------------------------------
+refreshPlayers()
+
+Players.PlayerAdded:Connect(refreshPlayers)
+Players.PlayerRemoving:Connect(function(player)
+	if selectedPlayer == player then
+		stopFollow()
+	end
+	refreshPlayers()
+end)
