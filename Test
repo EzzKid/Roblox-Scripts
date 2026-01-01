@@ -1,112 +1,343 @@
--- SERVICES
+--// Services
 local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
-local Workspace = game:GetService("Workspace")
-local Camera = Workspace.CurrentCamera
 
--- PLAYER
 local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
+local camera = workspace.CurrentCamera
 
--- FOLLOW STATE
-local following = false
-local followTarget = nil
-local followConnection = nil
+--// Map references
+local map = workspace:WaitForChild("Map")
+local area = map:WaitForChild("BredMakurz")
 
--- FOLLOW FUNCTION
-local function startFollowing(targetPlayer)
-	following = true
-	followTarget = targetPlayer
+--// CONFIG — ADD AS MANY SAFES AS YOU WANT HERE
+local SAFES = {
+	{
+		Name = "MediumSafe_HO_24",
+		Position = Vector3.new(-4827, -78, -187)
+	},
+	{
+		Name = "MediumSafe_HO_39",
+		Position = Vector3.new(-4422, 25, -51)
+	},
+	{
+		Name = "MediumSafe_HO_41",
+		Position = Vector3.new(-4707, 17, -953)
+	},
+	{
+		Name = "MediumSafe_SEW_2",
+		Position = Vector3.new(-4310, -94, -814)
+	},
+	{
+		Name = "MediumSafe_SEW_8",
+		Position = Vector3.new(-4708, -150, -869)
+	},
+	{
+		Name = "MediumSafe_SU_32",
+		Position = Vector3.new(-3869, 6, -608)
+	},
+	{
+		Name = "SmallSafe_BD_18",
+		Position = Vector3.new(-4276, 32, -120)
+	},
+	{
+		Name = "MediumSafe_TS_20",
+		Position = Vector3.new(-4705, 4, -169)
+	},
+	{
+		Name = "SmallSafe_C_3",
+		Position = Vector3.new(-4670, 6, -263)
+	},
+	{
+		Name = "SmallSafe_WH_28",
+		Position = Vector3.new(-4643, 31, -542)
+	},
+	{
+		Name = "SmallSafe_BD_12",
+		Position = Vector3.new(-4777, 32, -586)
+	},
+	{
+		Name = "MediumSafe_SW_9",
+		Position = Vector3.new(-4697, -33, -655)
+	},
+	{
+		Name = "SmallSafe_SW_26",
+		Position = Vector3.new(-4764, -33, -653)
+	},
+	{
+		Name = "SmallSafe_SW_11",
+		Position = Vector3.new(-4684, -33, -829)
+	},
+	{
+		Name = "SmallSafe_HO_37",
+		Position = Vector3.new(-4710, 17, -985)
+	},
+	{
+		Name = "SmallSafe_TO_44",
+		Position = Vector3.new(-4488, 38, -817)
+	},
+	{
+		Name = "MediumSafe_T_45",
+		Position = Vector3.new(-4514, 152, -857)
+	},
+	{
+		Name = "MediumSafe_T_46",
+		Position = Vector3.new(-4514, 152, -808)
+	},
+	{
+		Name = "SmallSafe_TO_43",
+		Position = Vector3.new(-4460, 109, -833)
+	},
+	{
+		Name = "SmallSafe_FA_35",
+		Position = Vector3.new(-4393, 6, -561)
+	},
+	{
+		Name = "SmallSafe_FA_34",
+		Position = Vector3.new(-4427, 6, -547)
+	},
+	{
+		Name = "SmallSafe_FA_36",
+		Position = Vector3.new(-4418, 22, -615)
+	},
+	{
+		Name = "SmallSafe_M_17",
+		Position = Vector3.new(-4271, 7, -658)
+	},
+	{
+		Name = "SmallSafe_TO_42",
+		Position = Vector3.new(-4512, 73, -890)
+	},
+	{
+		Name = "SmallSafe_SU_22",
+		Position = Vector3.new(-3876, 6, -471)
+	},
+	{
+		Name = "SmallSafe_SU_15",
+		Position = Vector3.new(-3863, 6, -471)
+	},
+	{
+		Name = "MediumSafe_VC_30",
+		Position = Vector3.new(-4853, -201, -868)
+	},
+	{
+		Name = "MediumSafe_VC_21",
+		Position = Vector3.new(-4802, -201, -973)
+	},
+	{
+		Name = "MediumSafe_VC_38",
+		Position = Vector3.new(-4752, -201, -973)
+	},
+	{
+		Name = "Register_B_19",
+		Position = Vector3.new(-4272, 4, -123)
+	},
+	{
+		Name = "Register_BS_29",
+		Position = Vector3.new(-4283, 5, -37)
+	},
+	{
+		Name = "Register_HO_23",
+		Position = Vector3.new(-4432, 25, -42)
+	},
+	{
+		Name = "Register_GS_16",
+		Position = Vector3.new(-4430, 4, 210)
+	},
+	{
+		Name = "Register_P_13",
+		Position = Vector3.new(-4414, 7, -130)
+	},
+	{
+		Name = "Register_P_14",
+		Position = Vector3.new(-4414, 7, -95)
+	},
+	{
+		Name = "Register_TS_27",
+		Position = Vector3.new(-4679, 5, -150)
+	},
+	{
+		Name = "Register_TS_4",
+		Position = Vector3.new(-4679, 5, -146)
+	},
+	{
+		Name = "Register_B_40",
+		Position = Vector3.new(-4918, 6, -109)
+	},
+	{
+		Name = "Register_C_1",
+		Position = Vector3.new(-4646, 6, -259)
+	},
+	{
+		Name = "Register_M_25",
+		Position = Vector3.new(-4508, 6, -250)
+	},
+	{
+		Name = "Register_VI_47",
+		Position = Vector3.new(-4401, 6, -419)
+	},
+	{
+		Name = "Register_M_5",
+		Position = Vector3.new(-4256, 7, -628)
+	},
+	{
+		Name = "Register_B_7",
+		Position = Vector3.new(-4727, 4, -733)
+	},
+	{
+		Name = "Register_B_10",
+		Position = Vector3.new(-4049, 4, -232)
+	},
+	{
+		Name = "Register_B_33",
+		Position = Vector3.new(-4032, 6, -271)
+	},
+	{
+		Name = "Register_M_31",
+		Position = Vector3.new(-3802, 6, -405)
+	},
+	{
+		Name = "Register_M_6",
+		Position = Vector3.new(-4513, 6, -927)
+	},
+}
 
-	if followConnection then
-		followConnection:Disconnect()
+
+local MAX_DISTANCE = 500
+
+-- Colors
+local COLOR_OPEN   = Color3.fromRGB(0, 255, 0)
+local COLOR_BROKEN = Color3.fromRGB(255, 0, 0)
+
+--// ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "WaypointGui"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+-- Track active waypoints
+local waypoints = {}
+
+--// Create a waypoint UI
+local function createWaypoint(labelText)
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.fromOffset(100, 100)
+	frame.AnchorPoint = Vector2.new(0.5, 0.5)
+	frame.BackgroundTransparency = 1
+	frame.Visible = false
+	frame.Parent = screenGui
+
+	local nameLabel = Instance.new("TextLabel")
+	nameLabel.Size = UDim2.fromScale(1, 0.2)
+	nameLabel.Position = UDim2.fromScale(0, -0.3)
+	nameLabel.BackgroundTransparency = 1
+	nameLabel.Font = Enum.Font.SourceSansBold
+	nameLabel.TextSize = 16
+	nameLabel.TextStrokeTransparency = 0
+	nameLabel.Text = labelText
+	nameLabel.Parent = frame
+
+	local distanceLabel = Instance.new("TextLabel")
+	distanceLabel.Size = UDim2.fromScale(1, 0.2)
+	distanceLabel.Position = UDim2.fromScale(0, 1)
+	distanceLabel.BackgroundTransparency = 1
+	distanceLabel.Font = Enum.Font.SourceSansBold
+	distanceLabel.TextSize = 14
+	distanceLabel.TextStrokeTransparency = 0
+	distanceLabel.Parent = frame
+
+	return frame, nameLabel, distanceLabel
+end
+
+--// Update color + text
+local function updateWaypointVisual(wp, isBroken)
+	if isBroken then
+		wp.Color = COLOR_BROKEN
+		wp.NameLabel.Text = wp.SafeName .. " (Broken)"
+	else
+		wp.Color = COLOR_OPEN
+		wp.NameLabel.Text = wp.SafeName .. " (Open)"
 	end
 
-	followConnection = RunService.Heartbeat:Connect(function()
-		if not following then return end
-		if not followTarget.Character then return end
+	wp.NameLabel.TextColor3 = wp.Color
+	wp.DistanceLabel.TextColor3 = wp.Color
+end
 
-		local hrp = followTarget.Character:FindFirstChild("HumanoidRootPart")
-		local myHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+--// Monitor a safe (respawn-safe)
+local function monitorSafe(wp, safe)
+	if wp.Connection then
+		wp.Connection:Disconnect()
+	end
 
-		if hrp and myHRP then
-			local tween = TweenService:Create(
-				myHRP,
-				TweenInfo.new(1, Enum.EasingStyle.Linear),
-				{CFrame = hrp.CFrame * CFrame.new(0, 0, -3)}
-			)
-			tween:Play()
-		end
+	local brokenValue = safe:WaitForChild("Values"):WaitForChild("Broken")
+
+	updateWaypointVisual(wp, brokenValue.Value)
+
+	wp.Connection = brokenValue.Changed:Connect(function(value)
+		updateWaypointVisual(wp, value)
 	end)
 end
 
-local function stopFollowing()
-	following = false
-	followTarget = nil
+--// Handle safe spawn / respawn
+area.ChildAdded:Connect(function(child)
+	for _, wp in ipairs(waypoints) do
+		if child.Name == wp.SafeName then
+			task.wait()
+			monitorSafe(wp, child)
+		end
+	end
+end)
 
-	if followConnection then
-		followConnection:Disconnect()
-		followConnection = nil
+--// Initialize waypoints
+for _, data in ipairs(SAFES) do
+	local frame, nameLabel, distanceLabel = createWaypoint(data.Name)
+
+	local wp = {
+		SafeName = data.Name,
+		Position = data.Position,
+		Frame = frame,
+		NameLabel = nameLabel,
+		DistanceLabel = distanceLabel,
+		Color = COLOR_OPEN,
+		Connection = nil,
+	}
+
+	table.insert(waypoints, wp)
+
+	local existingSafe = area:FindFirstChild(data.Name)
+	if existingSafe then
+		monitorSafe(wp, existingSafe)
 	end
 end
 
--- GET PLAYER FROM CHARACTER
-local function getPlayerFromCharacter(character)
-	for _, player in Players:GetPlayers() do
-		if player.Character == character then
-			return player
+--// Update loop
+RunService.RenderStepped:Connect(function()
+	local character = player.Character
+	if not character or not character.PrimaryPart then
+		for _, wp in ipairs(waypoints) do
+			wp.Frame.Visible = false
 		end
+		return
 	end
-	return nil
-end
 
--- MOUSE CLICK HANDLER
-local function onMouseClick(input, gameProcessed)
-	if gameProcessed then return end
-	if input.UserInputType ~= Enum.UserInputType.MouseButton1 then return end
+	local playerPos = character.PrimaryPart.Position
 
-	-- Cast a ray from the camera to the mouse position
-	local mousePosition = UserInputService:GetMouseLocation()
-	local ray = Camera:ViewportPointToRay(mousePosition.X, mousePosition.Y)
-	local raycastResult = Workspace:Raycast(ray.Origin, ray.Direction * 1000)
-
-	if raycastResult then
-		local hitPart = raycastResult.Instance
-		local character = hitPart.Parent
-
-		-- Check if we hit a player character
-		local targetPlayer = getPlayerFromCharacter(character)
-		if targetPlayer and targetPlayer ~= player then
-			-- Start following the clicked player
-			startFollowing(targetPlayer)
+	for _, wp in ipairs(waypoints) do
+		local distance = (wp.Position - playerPos).Magnitude
+		if distance > MAX_DISTANCE then
+			wp.Frame.Visible = false
+			continue
 		end
-	end
-end
 
-local function TweenFasterToPlayerWhen10StudsClose
-	if TargetedPlayer.Position = 10
-	then TweenInfo = 0.3.TweenInfo.EasingStyle.Linear
-		
-		
-		
-	end
-
-local function KeepTweenedToPlayerEvenIfTheyReset
-	local player = Players.LocalPlayer
-	end
-	-- KEYBOARD INPUT HANDLER
-	local function onInputBegan(input, gameProcessed)
-		if gameProcessed then return end
-
-		-- Press V to stop following
-		if input.KeyCode == Enum.KeyCode.V then
-			stopFollowing()
+		local screenPos, onScreen = camera:WorldToScreenPoint(wp.Position)
+		if not onScreen then
+			wp.Frame.Visible = false
+			continue
 		end
+
+		wp.Frame.Visible = true
+		wp.DistanceLabel.Text = string.format("%.0f studs", distance)
+		wp.Frame.Position = UDim2.fromOffset(screenPos.X, screenPos.Y - 50)
 	end
+end)
 
-	-- CONNECT INPUT EVENTS
-	UserInputService.InputBegan:Connect(onInputBegan)
-UserInputService.InputBegan:Connect(onMouseClick)
-
+print("✅ Multi-safe waypoint system loaded")
