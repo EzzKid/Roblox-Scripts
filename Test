@@ -202,7 +202,7 @@ local SAFES = {
 }
 
 
-local MAX_DISTANCE = 250
+local MAX_DISTANCE = 320
 
 -- Colors
 local COLOR_OPEN   = Color3.fromRGB(0, 255, 0)
