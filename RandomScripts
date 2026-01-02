@@ -1,0 +1,290 @@
+local args = {
+    TeleportPlayerByName("PlayerUsernameHere", targetCFrame)
+    workspace:WaitForChild("Part")
+}
+
+local glockfire = game:GetService("ReplicatedStorage"):WaitForChild("GlockFire")
+
+while true do
+    glockFire:FireServer(unpack(args))
+	wait(0.0004)
+end
+
+
+local args = {
+    CFrame.new(-1094.95703125, 18360.25390625, -1712.0389404296875, 0.17569276690483093, -0.11728932708501816, 0.9774330854415894, -0, 0.9928772449493408, 0.11914258450269699, -0.9844450354576111, -0.02093249000608921, 0.1744413524866104),
+    workspace:WaitForChild("Part")
+}
+local shottyfire = game:GetService("ReplicatedStorage"):WaitForChild("ShottyFire")
+
+while true do
+    shottyfire:FireServer(unpack(args))
+    wait(0.0002)
+end
+-----------auto equip fists crim
+local player = game.Players.LocalPlayer
+
+local function setupBackpackMonitoring()
+    local backpack = player:WaitForChild("Backpack")
+
+    local function equipFists()
+        local character = player.Character
+        if not character then return end
+
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if not humanoid then return end
+
+        local fists = backpack:FindFirstChild("Fists") or character:FindFirstChild("Fists")
+        if fists then
+            humanoid:EquipTool(fists)
+        end
+    end
+
+    -- Re-equip if fists are removed from Backpack
+    backpack.ChildRemoved:Connect(function(child)
+        if child.Name == "Fists" then
+            task.wait(2)
+            equipFists()
+        end
+    end)
+
+    -- Also re-equip if fists appear back in Backpack
+    backpack.ChildAdded:Connect(function(child)
+        if child.Name == "Fists" then
+            task.wait(2)
+            equipFists()
+        end
+    end)
+
+    -- Equip fists immediately if they exist
+    task.wait(2)
+    equipFists()
+end
+
+-- Runs the setup every time you respawn
+player.CharacterAdded:Connect(function()
+    task.wait(2) -- let tools load
+    setupBackpackMonitoring()
+end)
+
+-- Run once for first spawn
+setupBackpackMonitoring()
+----------Dollhouse roleplay swing troll----
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+
+-- Configuration
+local SWING_AMPLIFICATION = 30 -- How much to amplify small movements
+local MOVEMENT_THRESHOLD = 0.1 -- Minimum movement to detect
+local SWING_COOLDOWN = 0.3 -- Cooldown between swing boosts
+
+local lastSwingTime = 0
+local lastPosition = character.PrimaryPart.Position
+local isSeated = false
+local currentSeat = nil
+
+-- Function to apply swing force
+local function applySwingForce(direction)
+    local currentTime = tick()
+    if currentTime - lastSwingTime < SWING_COOLDOWN then
+        return
+    end
+    
+    if isSeated and currentSeat then
+        local bodyForce = currentSeat:FindFirstChild("BodyForce")
+        if bodyForce then
+            -- Apply amplified force in the direction of movement
+            local forceDirection = currentSeat.CFrame.lookVector * direction * SWING_AMPLIFICATION * 100
+            bodyForce.Force = forceDirection
+            
+            -- Reset force after a short delay
+            task.delay(0.2, function()
+                if bodyForce then
+                    bodyForce.Force = Vector3.new(0, 0, 0)
+                end
+            end)
+            
+            lastSwingTime = currentTime
+        end
+    end
+end
+
+-- Track when player sits down
+humanoid.Seated:Connect(function(seated, seat)
+    isSeated = seated
+    currentSeat = seated and seat or nil
+    
+    if seated and seat and (seat.Name == "SwingSeat1" or seat.Name == "SwingSeat2") then
+        print("Easy swing mode activated! Move slightly forward/backward to swing.")
+    end
+end)
+
+-- Monitor player movement for swing detection
+RunService.Heartbeat:Connect(function()
+    if not isSeated or not currentSeat then return end
+    
+    local currentPosition = character.PrimaryPart.Position
+    local movement = currentPosition - lastPosition
+    local forwardMovement = movement:Dot(currentSeat.CFrame.lookVector)
+    
+    -- Detect small forward/backward movements and amplify them
+    if math.abs(forwardMovement) > MOVEMENT_THRESHOLD then
+        local direction = forwardMovement > 0 and 1 or -1
+        applySwingForce(direction)
+    end
+    
+    lastPosition = currentPosition
+end)
+
+-- Alternative: Use keyboard input for more control
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed or not isSeated or not currentSeat then return end
+    
+    if input.KeyCode == Enum.KeyCode.W then
+        applySwingForce(1) -- Forward
+    elseif input.KeyCode == Enum.KeyCode.S then
+        applySwingForce(-1) -- Backward
+    end
+end)
+---to increasse torso size----
+script.Parent.Touched:Connect(function(touched)
+local humanoid = touched.Parent:WaitForChild("Humanoid")
+if humanoid then
+	humanoid.BodyWidthScale.Value = 2
+	humanoid.BodyDepthScale.Value = 2
+	humanoid.BodyHeightScale.Value = 2
+	humanoid.HeadSScale.Value = 2
+	humanoid.JumpPower = 50
+	humanoid.WalkSspeed = 50
+	end
+end)
+-----parkour bag esp---
+local player = game.Players.LocalPlayer
+local Workspace = game:GetService("Workspace")
+
+-- Wait for the Map folder to exist
+local mapFolder = Workspace:WaitForChild("Map", 10)
+if not mapFolder then
+	warn("Map folder not found in Workspace!")
+	return
+end
+
+local function gatherMapData()
+	print("=== Gathering Map Model Data ===")
+	
+	-- Get all models in the Map folder
+	local models = {}
+	for _, descendant in mapFolder:GetDescendants() do
+		if descendant:IsA("Model") and descendant.Parent == mapFolder then
+			table.insert(models, descendant)
+		end
+	end
+	
+	print("Found " .. #models .. " models in Map folder:")
+	print("\n--- Model Positions ---")
+	
+	-- Print positions of all models
+	for i, model in ipairs(models) do
+		local position = model:GetPivot().Position
+		print(string.format("Model %d: X=%.2f, Y=%.2f, Z=%.2f", i, position.X, position.Y, position.Z))
+	end
+	
+	task.wait(1)
+	
+	print("\n--- RealBagValues ---")
+	
+	-- Gather RealBagValues from each model
+	for i, model in ipairs(models) do
+		local realBagValue = model:FindFirstChild("RealBagValues")
+		if realBagValue and realBagValue:IsA("StringValue") then
+			print(string.format("Model %d RealBagValue: %s", i, realBagValue.Value))
+		else
+			print(string.format("Model %d: No RealBagValues StringValue found", i))
+		end
+	end
+	
+	print("=== Data Gathering Complete ===")
+end
+
+-- Run the function
+gatherMapData()
+----Updated parkour bag esp------------------
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+local Workspace = game:GetService("Workspace")
+
+-- Wait for Map folder
+local mapFolder = Workspace:WaitForChild("Map", 10)
+if not mapFolder then
+	warn("Map folder not found in Workspace!")
+	return
+end
+
+
+-- GUI CREATION
+
+
+-- ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "TeleportGUI"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+-- ScrollingFrame
+local scroll = Instance.new("ScrollingFrame")
+scroll.Size = UDim2.new(0, 250, 0, 400)
+scroll.Position = UDim2.new(0, 20, 0.3, 0)
+scroll.CanvasSize = UDim2.new(0, 0, 0, 0) -- will expand later
+scroll.ScrollBarThickness = 6
+scroll.Parent = screenGui
+
+-- UIListLayout for auto-stacking buttons
+local listLayout = Instance.new("UIListLayout")
+listLayout.Parent = scroll
+listLayout.Padding = UDim.new(0, 5)
+
+
+-- GATHER MODELS + CREATE BUTTONS
+
+
+local function createButtons()
+	for _, model in ipairs(mapFolder:GetChildren()) do
+		if model:IsA("Model") then
+
+			local realBagValue = model:FindFirstChild("RealBagValues")
+			if realBagValue and realBagValue:IsA("StringValue") then
+				
+				-- Create a button for this RealBagValue
+				local button = Instance.new("TextButton")
+				button.Size = UDim2.new(1, -10, 0, 40)
+				button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+				button.TextColor3 = Color3.fromRGB(255, 255, 255)
+				button.TextSize = 18
+				button.Text = realBagValue.Value
+				button.Parent = scroll
+
+				-- TELEPORT WHEN CLICKED
+				button.MouseButton1Click:Connect(function()
+					local pos = model:GetPivot().Position
+					humanoidRootPart.CFrame = CFrame.new(pos + Vector3.new(0, 3, 0)) 
+					-- Slight offset so player doesn't spawn inside the floor
+				end)
+
+			end
+		end
+	end
+
+	-- Expand scroll area
+	scroll.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y)
+end
+
+createButtons()
+-------------The streets Ar-15 aimbot-----
+workspace.Live.LocalPlayer.AR15
