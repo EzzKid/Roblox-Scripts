@@ -158,5 +158,3 @@ Players.PlayerRemoving:Connect(function(player)
 	end
 	refreshPlayers()
 end)
-
-
