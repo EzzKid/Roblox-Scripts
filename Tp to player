@@ -56,11 +56,12 @@ end
 local teleportConnection = nil
 local selectedPlayer = nil
 
-local function pivot_teleport(goalCFrame, duration)
+local function pivot_teleport(targetPos, duration)
 	local char = lp.Character
 	if not char or not char.PrimaryPart then return end
 
 	local start = char:GetPivot()
+	local goal = CFrame.new(targetPos)
 	local startTime = tick()
 
 	local conn
@@ -69,7 +70,7 @@ local function pivot_teleport(goalCFrame, duration)
 		if t >= 1 then t = 1 end
 
 		local a = easing.quadInOut(t)
-		char:PivotTo(start:Lerp(goalCFrame, a))
+		char:PivotTo(start:Lerp(goal, a))
 
 		if t == 1 then
 			conn:Disconnect()
@@ -77,14 +78,7 @@ local function pivot_teleport(goalCFrame, duration)
 	end)
 end
 
-
 local function startFollow(player)
-	local backOffset = -2
-	local targetCFrame = player.Character.PrimaryPart.CFrame
-	local behindCFrame = targetCFrame * CFrame.new(0, 0, backOffset)
-
-	pivot_teleport(behindCFrame, 0.25)
-
 	if teleportConnection then
 		teleportConnection:Disconnect()
 	end
@@ -92,12 +86,12 @@ local function startFollow(player)
 	teleportConnection = RunService.Heartbeat:Connect(function()
 		if not player.Character or not player.Character.PrimaryPart then return end
 		local targetRoot = player.Character.PrimaryPart
-		local backOffset = 3 -- studs behind the torso
+	local backOffset = -3 -- studs behind the torso
 
-		local targetCFrame = targetRoot.CFrame
-		local behindPosition = targetCFrame.Position - targetCFrame.LookVector * backOffset
+	local targetCFrame = targetRoot.CFrame
+	local behindPosition = targetCFrame.Position - targetCFrame.LookVector * backOffset
 
-		pivot_teleport(behindPosition, 0.25)
+	pivot_teleport(behindPosition, 0.25)
 	end)
 end
 
