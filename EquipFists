@@ -1,0 +1,47 @@
+local player = game.Players.LocalPlayer
+
+local function setupBackpackMonitoring()
+    local backpack = player:WaitForChild("Backpack")
+
+    local function equipFists()
+        local character = player.Character
+        if not character then return end
+
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if not humanoid then return end
+
+        local fists = backpack:FindFirstChild("Fists") or character:FindFirstChild("Fists")
+        if fists then
+            humanoid:EquipTool(fists)
+        end
+    end
+
+    -- Re-equip if fists are removed from Backpack
+    backpack.ChildRemoved:Connect(function(child)
+        if child.Name == "Fists" then
+            task.wait(2)
+            equipFists()
+        end
+    end)
+
+    -- Also re-equip if fists appear back in Backpack
+    backpack.ChildAdded:Connect(function(child)
+        if child.Name == "Fists" then
+            task.wait(2)
+            equipFists()
+        end
+    end)
+
+    -- Equip fists immediately if they exist
+    task.wait(2)
+    equipFists()
+end
+
+-- Runs the setup every time you respawn
+player.CharacterAdded:Connect(function()
+    task.wait(2) -- let tools load
+    setupBackpackMonitoring()
+end)
+
+-- Run once for first spawn
+setupBackpackMonitoring()
