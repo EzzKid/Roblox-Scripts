@@ -85,7 +85,13 @@ local function startFollow(player)
 
 	teleportConnection = RunService.Heartbeat:Connect(function()
 		if not player.Character or not player.Character.PrimaryPart then return end
-		pivot_teleport(player.Character.PrimaryPart.Position, 0.25)
+		local targetRoot = player.Character.PrimaryPart
+		local backOffset = 3 -- studs behind the torso
+
+		local targetCFrame = targetRoot.CFrame
+		local behindPosition = targetCFrame.Position - targetCFrame.LookVector * backOffset
+
+		pivot_teleport(behindPosition, 0.25)
 	end)
 end
 
