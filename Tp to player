@@ -85,7 +85,7 @@ local function startFollow(player)
 
 	teleportConnection = RunService.Heartbeat:Connect(function()
 		if not player.Character or not player.Character.PrimaryPart then return end
-		pivot_teleport(player.Character.PrimaryPart.Position, 3)
+		pivot_teleport(player.Character.PrimaryPart.Position, 0.25)
 	end)
 end
 
