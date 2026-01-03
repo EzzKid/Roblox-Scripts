@@ -1,47 +1,35 @@
 local player = game.Players.LocalPlayer
 
-local function setupBackpackMonitoring()
-    local backpack = player:WaitForChild("Backpack")
+-- Function to equip fists once
+local function equipFistsOnce()
+    local character = player.Character
+    if not character then return end
 
-    local function equipFists()
-        local character = player.Character
-        if not character then return end
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    if not humanoid then return end
 
-        local humanoid = character:FindFirstChildOfClass("Humanoid")
-        if not humanoid then return end
-
-        local fists = backpack:FindFirstChild("Fists") or character:FindFirstChild("Fists")
-        if fists then
-            humanoid:EquipTool(fists)
-        end
+    -- Look for Fists in backpack first, then character
+    local fists = player.Backpack:FindFirstChild("Fists") or character:FindFirstChild("Fists")
+    if fists then
+        humanoid:EquipTool(fists)
     end
-
-    -- Re-equip if fists are removed from Backpack
-    backpack.ChildRemoved:Connect(function(child)
-        if child.Name == "Fists" then
-            task.wait(2)
-            equipFists()
-        end
-    end)
-
-    -- Also re-equip if fists appear back in Backpack
-    backpack.ChildAdded:Connect(function(child)
-        if child.Name == "Fists" then
-            task.wait(2)
-            equipFists()
-        end
-    end)
-
-    -- Equip fists immediately if they exist
-    task.wait(2)
-    equipFists()
 end
 
--- Runs the setup every time you respawn
-player.CharacterAdded:Connect(function()
-    task.wait(2) -- let tools load
-    setupBackpackMonitoring()
-end)
+-- Function to handle everything on respawn
+local function onRespawn()
+    -- Wait for character and backpack to load properly
+    local character = player.Character or player.CharacterAdded:Wait()
+    local backpack = player:WaitForChild("Backpack")
 
--- Run once for first spawn
-setupBackpackMonitoring()
+    -- Give a small delay for tools to replicate
+    task.wait(3)
+
+    -- Equip fists once
+    equipFistsOnce()
+end
+
+-- Connect to respawn
+player.CharacterAdded:Connect(onRespawn)
+
+-- Run for the first spawn
+onRespawn()
