@@ -85,7 +85,7 @@ local function startFollow(player)
 
 	teleportConnection = RunService.Heartbeat:Connect(function()
 		if not player.Character or not player.Character.PrimaryPart then return end
-		pivot_teleport(player.Character.PrimaryPart.Position, 0.25)
+		pivot_teleport(player.Character.PrimaryPart.Position, 3)
 	end)
 end
 
@@ -158,3 +158,8 @@ Players.PlayerRemoving:Connect(function(player)
 	end
 	refreshPlayers()
 end)
+------fast cash grab *fix*
+local Workspace = game:GetService("Workspace")
+
+workspace.Filter.SpawnedBread.CashDrop1(all .ProximityPrompt.HoldDuration = 0
+
