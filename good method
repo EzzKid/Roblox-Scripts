@@ -1,0 +1,45 @@
+local teleport_table = {
+	location1 = Vector3.new(-4452.999, -258.2, -382.493), -- Bounty:-4452.999, -258.2, -382.493 /V: -4452.999, -258.2, -382.493
+}
+
+local RunService     = game:GetService("RunService")
+local lp             = game.Players.LocalPlayer
+local easing = {}
+
+-- EASING
+easing.linear = function(t) return t end
+easing.quadOut = function(t) return t * (2 - t) end
+easing.quadInOut = function(t) return t < 0.5 and 2*t*t or -1 + (4 - 2*t)*t end
+
+-- MAIN: Safe pivot lerp
+function pivot_teleport(targetPos, duration)
+	local char = lp.Character
+	if not char or not char.PrimaryPart then return end
+
+	local start = char:GetPivot()
+	local goal = CFrame.new(targetPos)
+
+	local startTime = tick()
+	local conn
+
+	conn = RunService.Heartbeat:Connect(function()
+		local t = (tick() - startTime) / duration
+		if t >= 1 then t = 1 end
+
+		local a = easing.quadInOut(t)
+		local newCF = start:Lerp(goal, a)
+
+		char:PivotTo(newCF)
+
+		if t == 1 then
+			conn:Disconnect()
+		end
+	end)
+end
+
+while true do
+	print("Teleporting to location1...")
+	pivot_teleport(teleport_table.location1, 1.5) -- duration in seconds
+	print("Waiting 15 seconds before next teleport...")
+	task.wait(2)
+end
