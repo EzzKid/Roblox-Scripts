@@ -8,7 +8,7 @@ local function setupCharacter(character)
     humanoid.Died:Connect(function()
         if diedOnce then return end
         diedOnce = true
-		task.wait(5)
+		task.wait(3)
 		local args = {
 	"KMG4R904"
 }
