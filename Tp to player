@@ -79,7 +79,7 @@ end
 
 
 local function startFollow(player)
-	local backOffset = 3
+	local backOffset = -2
 	local targetCFrame = player.Character.PrimaryPart.CFrame
 	local behindCFrame = targetCFrame * CFrame.new(0, 0, backOffset)
 
