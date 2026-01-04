@@ -22,7 +22,7 @@ local function onRespawn()
     local backpack = player:WaitForChild("Backpack")
 
     -- Give a small delay for tools to replicate
-    task.wait(3)
+    task.wait(1)
 
     -- Equip fists once
     equipFistsOnce()
