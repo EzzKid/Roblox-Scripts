@@ -37,9 +37,15 @@ function pivot_teleport(targetPos, duration)
 	end)
 end
 
-while true do
+local endTime = os.clock() + 5 -- stop after 5 seconds
+
+while os.clock() < endTime do
 	print("Teleporting to location1...")
-	pivot_teleport(teleport_table.location1, 1.5) -- duration in seconds
-	print("Waiting 15 seconds before next teleport...")
+	pivot_teleport(teleport_table.location1, 1.5)
+
+	print("Waiting 2 seconds before next teleport...")
 	task.wait(2)
 end
+
+print("Teleport loop stopped after 5 seconds")
+
