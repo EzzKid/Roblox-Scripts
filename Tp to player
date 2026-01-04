@@ -86,7 +86,7 @@ local function startFollow(player)
 	teleportConnection = RunService.Heartbeat:Connect(function()
 		if not player.Character or not player.Character.PrimaryPart then return end
 		local root = player.Character.PrimaryPart
-		local frontOffset = -4 -- studs in front of the player
+		local frontOffset = 3 -- studs in front of the player
 
 		local frontPosition =
 			root.Position + root.CFrame.LookVector * frontOffset
