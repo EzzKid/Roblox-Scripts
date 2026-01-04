@@ -78,50 +78,31 @@ local function pivot_teleport(targetPos, duration)
 	end)
 end
 
-local following = false
-
 local function startFollow(player)
-	-- Stop any existing follow
-	following = false
 	if teleportConnection then
 		teleportConnection:Disconnect()
-		teleportConnection = nil
 	end
 
-	following = true
+	teleportConnection = RunService.Heartbeat:Connect(function()
+		if not player.Character or not player.Character.PrimaryPart then return end
+		local root = player.Character.PrimaryPart
+		local frontOffset = 4 -- studs in front of the player
 
-	teleportConnection = task.spawn(function()
-		while following do
-			if not player.Character or not player.Character.PrimaryPart then
-				task.wait(2)
-				continue
-			end
+		local frontPosition =
+			root.Position + root.CFrame.LookVector * frontOffset
 
-			local targetRoot = player.Character.PrimaryPart
-			local backOffset = 3 -- studs behind torso
+		pivot_teleport(frontPosition, 0.25)
 
-			local targetCFrame = targetRoot.CFrame
-			local behindPosition =
-				targetCFrame.Position - targetCFrame.LookVector * backOffset
-
-			pivot_teleport(behindPosition, 0.25)
-
-			task.wait(2) -- 👈 teleport every 2 seconds
-		end
 	end)
 end
 
 local function stopFollow()
-	following = false
-
 	if teleportConnection then
-		task.cancel(teleportConnection)
+		teleportConnection:Disconnect()
 		teleportConnection = nil
 	end
-
 	selectedPlayer = nil
 end
-
 
 ----------------------------------------------------------------
 -- PLAYER LIST
