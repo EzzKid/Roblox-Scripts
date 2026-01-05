@@ -1,0 +1,140 @@
+
+-- Services
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+
+local player = Players.LocalPlayer
+local camera = Workspace.CurrentCamera
+
+-- Config
+local MAX_DISTANCE = 1000
+local ITEM_NAMES = {"RPG-7", "__SlayerKit", "Corruptis", "AKM", "Mare"} -- remove trailing comma
+
+-- Map / Shopz
+local map = Workspace:WaitForChild("Map")
+local shopz = map:WaitForChild("Shopz")
+
+-- GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "DealerWaypointGui"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+-- Waypoints
+local dealerWaypoints = {}
+local anyDealerHasItem = false
+
+-- Create waypoint UI
+local function createWaypoint(text)
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.fromOffset(100, 100)
+	frame.AnchorPoint = Vector2.new(0.5, 0.5)
+	frame.BackgroundTransparency = 1
+	frame.Visible = false
+	frame.Parent = screenGui
+
+	local label = Instance.new("TextLabel")
+	label.Size = UDim2.fromScale(1, 0.2)
+	label.Position = UDim2.fromScale(0, -0.2)
+	label.BackgroundTransparency = 1
+	label.Font = Enum.Font.SourceSansBold
+	label.TextSize = 16
+	label.TextStrokeTransparency = 0
+	label.TextColor3 = Color3.new(1, 1, 1)
+	label.Text = text
+	label.Parent = frame
+
+	local distanceLabel = Instance.new("TextLabel")
+	distanceLabel.Size = UDim2.fromScale(1, 0.2)
+	distanceLabel.Position = UDim2.fromScale(0, 1)
+	distanceLabel.BackgroundTransparency = 1
+	distanceLabel.Font = Enum.Font.SourceSans
+	distanceLabel.TextSize = 14
+	distanceLabel.TextStrokeTransparency = 0
+	distanceLabel.TextColor3 = Color3.new(1, 1, 1)
+	distanceLabel.Parent = frame
+
+	return {Frame = frame, DistanceLabel = distanceLabel}
+end
+
+-- Update dealer waypoints
+local function updateDealerWaypoints()
+	local foundItem = false
+
+	for _, dealer in ipairs(shopz:GetChildren()) do
+		if dealer:IsA("Model") and dealer.Name == "Dealer" then
+			local stocks = dealer:FindFirstChild("CurrentStocks")
+			local selling = false
+			local soldItems = {}
+
+			if stocks then
+				for _, itemName in ipairs(ITEM_NAMES) do
+					local item = stocks:FindFirstChild(itemName)
+					if item and item:IsA("IntConstrainedValue") and item.Value == 1 then
+						selling = true
+						foundItem = true
+						table.insert(soldItems, itemName)
+					end
+				end
+			end
+
+			-- Get dealer position
+			local dealerPos = dealer.PrimaryPart and dealer.PrimaryPart.Position
+			if not dealerPos then
+				local firstPart = dealer:FindFirstChildWhichIsA("BasePart")
+				if firstPart then dealerPos = firstPart.Position end
+			end
+
+			-- Create waypoint dynamically
+			if selling and dealerPos and not dealerWaypoints[dealer] and #soldItems > 0 then
+				local waypointText = table.concat(soldItems, ", ")
+				dealerWaypoints[dealer] = {
+					UI = createWaypoint(waypointText),
+					Position = dealerPos
+				}
+			end
+
+			-- Remove waypoint
+			if (not selling or not dealerPos) and dealerWaypoints[dealer] then
+				dealerWaypoints[dealer].UI.Frame:Destroy()
+				dealerWaypoints[dealer] = nil
+			end
+		end
+	end
+
+	-- Print status change
+	if foundItem and not anyDealerHasItem then
+		anyDealerHasItem = true
+		print("You currently got a special item being sold by dealers")
+	elseif not foundItem and anyDealerHasItem then
+		anyDealerHasItem = false
+		print("Dealers are all broke bruh")
+	end
+end
+
+-- Render loop
+RunService.RenderStepped:Connect(function()
+	local character = player.Character
+	if not character or not character.PrimaryPart then return end
+	local playerPos = character.PrimaryPart.Position
+
+	updateDealerWaypoints()
+
+	for dealer, data in pairs(dealerWaypoints) do
+		local pos = data.Position
+		local distance = (pos - playerPos).Magnitude
+
+		if distance > MAX_DISTANCE then
+			data.UI.Frame.Visible = false
+			continue
+		end
+
+		local screenPos, onScreen = camera:WorldToScreenPoint(pos)
+		data.UI.Frame.Visible = onScreen
+		if onScreen then
+			data.UI.DistanceLabel.Text = string.format("%.0f studs", distance)
+			data.UI.Frame.Position = UDim2.fromOffset(screenPos.X, screenPos.Y - 40)
+		end
+	end
+end)
