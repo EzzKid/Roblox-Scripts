@@ -9,7 +9,7 @@ local camera = Workspace.CurrentCamera
 
 -- Config
 local MAX_DISTANCE = 1000
-local ITEM_NAMES = {"RPG-7", "__SlayerKit", "Corruptis", "AKM", "Mare"} -- remove trailing comma
+local ITEM_NAMES = {"__SlayerKit"} -- remove trailing comma
 
 -- Map / Shopz
 local map = Workspace:WaitForChild("Map")
@@ -106,7 +106,7 @@ local function updateDealerWaypoints()
 	-- Print status change
 	if foundItem and not anyDealerHasItem then
 		anyDealerHasItem = true
-		print("You currently got a special item being sold by dealers")
+		print("You currently got a slayer")
 	elseif not foundItem and anyDealerHasItem then
 		anyDealerHasItem = false
 		print("Dealers are all broke bruh")
