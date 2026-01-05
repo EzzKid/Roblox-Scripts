@@ -9,7 +9,7 @@ local camera = Workspace.CurrentCamera
 
 -- Config
 local MAX_DISTANCE = 1000
-local ITEM_NAMES = {"__SlayerKit"} -- remove trailing comma
+local ITEM_NAMES = {"Mare"} -- remove trailing comma
 
 -- Map / Shopz
 local map = Workspace:WaitForChild("Map")
