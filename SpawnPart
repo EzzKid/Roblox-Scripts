@@ -3,5 +3,6 @@ local Workspace = game:GetService("Workspace")
 local part = Instance.new("Part")
 part.Size = Vector3.new(50.727, 1, 46.286) -- 3D size uses Vector3
 part.Position = Vector3.new(-4063.378, -148.355, -327.143) -- typo fixed + Vector3
+part.Transparency = 1
 part.Anchored = true
 part.Parent = Workspace
