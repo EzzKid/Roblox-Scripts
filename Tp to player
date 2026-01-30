@@ -1,14 +1,11 @@
--- SERVICES
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
--- LOCAL PLAYER
+
 local lp = Players.LocalPlayer
 local playerGui = lp:WaitForChild("PlayerGui")
 
-----------------------------------------------------------------
--- GUI SETUP
-----------------------------------------------------------------
+
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "Menu"
 screenGui.ResetOnSpawn = false
@@ -44,9 +41,7 @@ uiList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
 end)
 
 
-----------------------------------------------------------------
--- LARP TELEPORT SYSTEM
-----------------------------------------------------------------
+
 local easing = {}
 
 easing.quadInOut = function(t)
@@ -104,9 +99,7 @@ local function stopFollow()
 	selectedPlayer = nil
 end
 
-----------------------------------------------------------------
--- PLAYER LIST
-----------------------------------------------------------------
+
 local buttons = {}
 
 local function createPlayerButton(player)
