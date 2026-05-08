@@ -132,7 +132,7 @@ local SAFES = {
 		Position = Vector3.new(-4272, 4, -123)
 	},
 	{
-		Name = "Register_BS_29",
+		Name = "Register_BS_47",
 		Position = Vector3.new(-4283, 5, -37)
 	},
 	{
@@ -172,7 +172,7 @@ local SAFES = {
 		Position = Vector3.new(-4508, 6, -250)
 	},
 	{
-		Name = "Register_VI_47",
+		Name = "Register_VI_29",
 		Position = Vector3.new(-4401, 6, -419)
 	},
 	{
